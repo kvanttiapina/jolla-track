@@ -11,24 +11,37 @@ Page {
     id: page
 
     Component.onCompleted: {
-        app.gps.sPosition.connect(updatePosition)
+        console.log("page completion")
+        app.signalReady.connect(slotReady)
+        app.signalUpdateTracking.connect(slotUpdateTracking)
+        app.applicationActiveChanged.connect(statusChanged)
+        control.onClicked.connect(app.slotToggleTracking)
     }
 
-
-    function toggleTracking() {
-        T.toggleTracking()
-        control.text = T.tracking ? qsTr("Stop") : qsTr("Start")
-        started.text = T.started()
-        moving.text = T.moving()
-        stationary.text = T.stationary()
-        nofix.text = T.nofix()
-        records.text = T.records()
-        distance.text = T.distance()
-        speed.text = T.speed()
-        bearing.text = T.bearing()
+    onStatusChanged: {
+        if (page.status === PageStatus.Active && app.applicationActive) {
+            console.log("enabling page updates")
+            app.signalReady.connect(slotReady)
+            app.gps.update()
+        } else if (page.status === PageStatus.Inactive || !app.applicationActive) {
+            console.log("disabling page updates")
+            app.signalReady.disconnect(slotReady)
+        }
     }
 
-    function updatePosition(pos) {
+    function slotUpdateTracking() {
+        control.text = app.tracker.tracking ? qsTr("Stop") : qsTr("Start")
+        started.text = app.tracker.started()
+        moving.text = app.tracker.moving()
+        stationary.text = app.tracker.stationary()
+        nofix.text = app.tracker.nofix()
+        records.text = app.tracker.records()
+        distance.text = app.tracker.distance()
+        speed.text = app.tracker.speed()
+        bearing.text = app.tracker.bearing()
+    }
+
+    function slotReady(pos) {
         source.text = app.gps.is_valid() ? app.gps.status() : app.gps.error()
         time.text = pos.timestamp
 
@@ -53,15 +66,14 @@ Page {
             vacc.text = vacc.text + T.errInd
         }
 
-        if (T.tracking) {
-            T.updateTrack(pos, app.gps.is_valid())
-            moving.text = T.moving()
-            stationary.text = T.stationary()
-            nofix.text = T.nofix()
-            records.text = T.records()
-            distance.text = T.distance()
-            speed.text = T.speed()
-            bearing.text = T.bearing()
+        if (app.tracker.tracking) {
+            moving.text = app.tracker.moving()
+            stationary.text = app.tracker.stationary()
+            nofix.text = app.tracker.nofix()
+            records.text = app.tracker.records()
+            distance.text = app.tracker.distance()
+            speed.text = app.tracker.speed()
+            bearing.text = app.tracker.bearing()
         }
     }
 
@@ -77,18 +89,17 @@ Page {
                 text: qsTr("About")
                 // onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
-//            MenuItem {
-//                text: qsTr("Options")
-//                onClicked: pageStack.push(Qt.resolvedUrl("OptionsPage.qml"))
-//            }
+            MenuItem {
+                text: qsTr("Options")
+                // onClicked: pageStack.push(Qt.resolvedUrl("OptionsPage.qml"))
+            }
             MenuItem {
                 text: qsTr("Tracks")
-                // onClicked: pageStack.push(Qt.resolvedUrl("TrackPage.qml"))
+                // onClicked: pageStack.push(Qt.resolvedUrl("TrackListPage.qml"))
             }
             MenuItem {
                 id: control
-                text: qsTr("Start")
-                onClicked: page.toggleTracking()
+                text: app.tracker.tracking ? qsTr("Stop") : qsTr("Start")
             }
         }
 
@@ -122,14 +133,14 @@ Page {
                 }
                 Column {
                     spacing: Theme.paddingLarge
-                    Label {text: T.errInd; id: started}
-                    Label {text: T.errInd; id: moving}
-                    Label {text: T.errInd; id: stationary}
-                    Label {text: T.errInd; id: nofix}
-                    Label {text: T.errInd; id: records}
-                    Label {text: T.errInd; id: distance}
-                    Label {text: T.errInd; id: speed}
-                    Label {text: T.errInd; id: bearing}
+                    Label {text: app.tracker.started(); id: started}
+                    Label {text: app.tracker.moving(); id: moving}
+                    Label {text: app.tracker.stationary(); id: stationary}
+                    Label {text: app.tracker.nofix(); id: nofix}
+                    Label {text: app.tracker.records(); id: records}
+                    Label {text: app.tracker.distance(); id: distance}
+                    Label {text: app.tracker.speed(); id: speed}
+                    Label {text: app.tracker.bearing(); id: bearing}
                 }
             }
 

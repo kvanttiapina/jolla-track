@@ -29,3 +29,5 @@ Makefile*
 # QtCreator
 
 *.autosave
+
+jolla-track.spec

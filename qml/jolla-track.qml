@@ -7,25 +7,46 @@ import Sailfish.Silica 1.0
 import QtPositioning 5.2
 
 import "./Storage.js" as S
+import "./Track.js" as T
 
 ApplicationWindow
 {
     id: app
     initialPage: Component {TrackPage {}}
-    cover: Qt.resolvedUrl("./CoverPage.qml")
+    cover: Component {CoverPage {}}
 
     Component.onCompleted: {
-        S.initDB()
+        var storage = S.createController()
+        storage.initDB()
+        gps.signalPosition.connect(slotPosition)
     }
+
+    signal signalReady(var pos)
+    signal signalUpdateTracking
+
+    function slotToggleTracking() {
+        app.tracker.toggleTracking()
+        app.signalUpdateTracking()
+    }
+
+    function slotPosition(pos) {
+        // console.log("received position data")
+        if (app.tracker.tracking) {
+            app.tracker.updateTrack(pos, app.gps.is_valid())
+        }
+        app.signalReady(pos)
+    }
+
+    property var tracker: T.createController()
 
     property var gps: PositionSource {
         id: src
         updateInterval: 1000
         active: true
 
-        signal sPosition(var position)
+        signal signalPosition(var pos)
 
-        onPositionChanged: src.sPosition(src.position)
+        onPositionChanged: src.signalPosition(src.position)
 
         function is_valid() {
             // return src.sourceError === PositionSource.NoError;
@@ -39,6 +60,7 @@ ApplicationWindow
              if (src.positioningMethod === PositionSource.AllPositioningMethods) {return "All/multiple"}
              return "This shouldn't happen -status"
         }
+
         function error() {
             if (src.sourceError === PositionSource.AccessError) {return "Error - No Privileges"}
             if (src.sourceError === PositionSource.ClosedError) {return "Error - No Connection"}
