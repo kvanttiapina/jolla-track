@@ -18,7 +18,7 @@ ApplicationWindow
     Component.onCompleted: {
         var storage = S.createController()
         storage.initDB()
-        gps.signalPosition.connect(slotPosition)
+        src.positionChanged.connect(slotPosition)
     }
 
     signal signalReady(var pos)
@@ -29,12 +29,43 @@ ApplicationWindow
         app.signalUpdateTracking()
     }
 
-    function slotPosition(pos) {
+    function slotPosition() {
         // console.log("received position data")
         if (app.tracker.tracking) {
-            app.tracker.updateTrack(pos, app.gps.is_valid())
+            app.tracker.updateTrack(src.position, src.is_valid())
         }
-        app.signalReady(pos)
+        app.signalReady(src.position)
+    }
+
+    property bool coverActive: false
+    property bool pageActive: false
+
+    onCoverActiveChanged: checkActiveStatus()
+    onPageActiveChanged: checkActiveStatus()
+
+    Timer {
+        id: stopSrcTimer
+        onTriggered: {
+            if (src.active && !tracker.tracking && !coverActive && !pageActive) {
+                console.log('stopping src')
+                src.stop()
+            }
+        }
+    }
+
+    function checkActiveStatus() {
+        console.log('coverActive = ' + coverActive)
+        console.log('pageActive = ' + pageActive)
+        if (!src.active && (coverActive || pageActive)) {
+            console.log('starting src')
+            src.start()
+            return
+        }
+        if (src.active && !tracker.tracking && !coverActive && !pageActive) {
+            console.log('starting timer')
+            stopSrcTimer.start()
+            return
+        }
     }
 
     property var tracker: T.createController()
@@ -42,11 +73,8 @@ ApplicationWindow
     property var gps: PositionSource {
         id: src
         updateInterval: 1000
-        active: true
+        active: false
 
-        signal signalPosition(var pos)
-
-        onPositionChanged: src.signalPosition(src.position)
 
         function is_valid() {
             // return src.sourceError === PositionSource.NoError;

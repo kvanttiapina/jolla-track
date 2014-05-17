@@ -11,24 +11,31 @@ CoverBackground {
 
     Component.onCompleted: {
         console.log("coverpage completion")
-        app.signalReady.connect(slotReady)
         app.signalUpdateTracking.connect(slotUpdateTracking)
         coverAction.onTriggered.connect(app.slotToggleTracking)
+        if (cover.status === Cover.Active) {
+            console.log("enabling cover updates")
+            app.signalReady.connect(slotReady)
+            app.coverActive = true
+            app.gps.update()
+        }
     }
 
     onStatusChanged: {
-        if (cover.status === PageStatus.Inactive) {
+        if (cover.status === Cover.Inactive) {
             console.log("disabling cover updates")
             app.signalReady.disconnect(slotReady)
-        } else if (cover.status === PageStatus.Active) {
+            app.coverActive = false
+        } else if (cover.status === Cover.Active) {
             console.log("enabling cover updates")
             app.signalReady.connect(slotReady)
+            app.coverActive = true
             app.gps.update()
         }
     }
 
     function slotUpdateTracking() {
-        coverAction.iconSource =  app.tracker.tracking ? "image://theme/icon-cover-pause" : "image://theme/icon-cover-new"
+        coverAction.iconSource =  app.tracker.tracking ? "image://theme/icon-cover-cancel" : "image://theme/icon-cover-new"
         records.text = app.tracker.records()
         distance.text = app.tracker.distance()
         speed.text = app.tracker.speed()
@@ -70,7 +77,7 @@ CoverBackground {
                 Label {text: qsTr("Recs:")}
                 Label {text: qsTr("Dist:")}
                 Label {text: qsTr("Speed:")}
-                Label {text: qsTr("B'ing:")}
+                Label {text: qsTr("Bearing:")}
             }
             Column {
                 spacing: Theme.paddingSmall
@@ -90,7 +97,7 @@ CoverBackground {
 
         CoverAction {
             id: coverAction
-            iconSource: app.tracker.tracking ? "image://theme/icon-cover-pause" : "image://theme/icon-cover-new"
+            iconSource: app.tracker.tracking ? "image://theme/icon-cover-cancel" : "image://theme/icon-cover-new"
         }
     }
 }
