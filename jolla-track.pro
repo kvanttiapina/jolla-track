@@ -24,5 +24,6 @@ OTHER_FILES += qml/jolla-track.qml \
     rpm/jolla-track.yaml \
     jolla-track.desktop \
     jolla-track.png \
-    qml/Global.js
+    qml/Global.js \
+    qml/TrackListPage.qml
 

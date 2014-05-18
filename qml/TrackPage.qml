@@ -103,7 +103,7 @@ Page {
             }
             MenuItem {
                 text: qsTr("Tracks")
-                // onClicked: pageStack.push(Qt.resolvedUrl("TrackListPage.qml"))
+                onClicked: pageStack.push(Qt.resolvedUrl("TrackListPage.qml"))
             }
             MenuItem {
                 id: control
