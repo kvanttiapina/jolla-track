@@ -14,7 +14,8 @@ TARGET = jolla-track
 
 CONFIG += sailfishapp
 
-SOURCES += src/main.cpp
+SOURCES += src/main.cpp \
+    src/fileio.cpp
 
 OTHER_FILES += qml/jolla-track.qml \
     qml/CoverPage.qml \
@@ -26,4 +27,7 @@ OTHER_FILES += qml/jolla-track.qml \
     jolla-track.png \
     qml/Global.js \
     qml/TrackListPage.qml
+
+HEADERS += \
+    src/fileio.h
 

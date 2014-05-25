@@ -88,6 +88,65 @@ controlProto.addPosition = function(track_id, stamp, lat, lon, alt, hacc, vacc) 
 }
 
 
+controlProto.get_as_gpx = function(track_id, name) {
+    var now = new Date()
+    var contents = '<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n' +
+            '<gpx version="1.1" creator="jolla-tracker https://github.com/kvanttiapina/jolla-track" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
+            '<metadata>\n' +
+            '<name>' + name + '</name>\n' +
+            '<time>' + now.toUTCString() + '</time>\n' +
+            '</metadata>\n' +
+            '<trk><trkseg>\n'
+    this._db.transaction(function(tx) {
+        var r = tx.executeSql('select * from data where track_id = ?', [track_id])
+        for (var idx = 0; idx < r.rows.length; idx++) {
+            var p = r.rows.item(idx)
+            var trkpt = '<trkpt lat="' + p.latitude + '" lon="' + p.longitude + '">\n' +
+                    '<time>' + p.stamp + '</time>\n' +
+                    (p.altitude ? '<ele>' + p.altitude + '</ele>\n' : '') +
+                    '</trkpt>\n'
+            contents = contents + trkpt
+        }
+    })
+    contents = contents + '</trkseg></trk>\n</gpx>\n'
+    return contents
+}
+
+controlProto.get_all_as_gpx = function(name) {
+    var now = new Date()
+    var contents = '<?xml version="1.0" encoding="UTF-8" standalone="no" ?>\n' +
+            '<gpx version="1.1" creator="jolla-tracker https://github.com/kvanttiapina/jolla-track" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.topografix.com/GPX/1/1" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">\n' +
+            '<metadata>\n' +
+            '<name>' + name + '</name>\n' +
+            '<time>' + now.toUTCString() + '</time>\n' +
+            '</metadata>\n'
+    this._db.transaction(function(tx) {
+        var r0 = tx.executeSql('select * from tracks')
+        for (var idx0 = 0; idx0 < r0.rows.length; idx0++) {
+            var track_id = r0.rows.item(idx0).id
+            var stamp = tx.executeSql('select min(id) as nu, stamp from data where track_id = ?', [track_id])
+            var records = tx.executeSql('select count(id) as records from data where track_id = ?', [track_id])
+            var track_name = '' + stamp.rows.item(0).stamp + '-' + records.rows.item(0).records
+
+            var track = '<trk>\n<name>' + track_name + '</name>\n<trkseg>\n'
+
+            var r = tx.executeSql('select * from data where track_id = ?', [track_id])
+            for (var idx = 0; idx < r.rows.length; idx++) {
+                var p = r.rows.item(idx)
+                var trkpt = '<trkpt lat="' + p.latitude + '" lon="' + p.longitude + '">\n' +
+                        '<time>' + p.stamp + '</time>\n' +
+                        (p.altitude ? '<ele>' + p.altitude + '</ele>\n' : '') +
+                        '</trkpt>\n'
+                track = track + trkpt
+            }
+            track = track + '</trkseg>\n</trk>\n'
+            contents = contents + track
+        }
+    })
+    contents = contents + '</gpx>\n'
+    return contents
+}
+
 controlProto._dropTables = function() {
     this._db.transaction(function(tx) {
         tx.executeSql('drop table if exists tracks');
@@ -101,11 +160,11 @@ controlProto._createTables = function() {
         tx.executeSql('create table if not exists data(id integer primary key,' +
                       'track_id integer not null,' +
                       'stamp date not null,' +
-                      'latitude double not null,' +
-                      'longitude double not null,' +
-                      'altitude double,' +
-                      'horizontalAccuracy double not null,' +
-                      'verticalAccuracy double)');
+                      'latitude real not null,' +
+                      'longitude real not null,' +
+                      'altitude real,' +
+                      'horizontalAccuracy real not null,' +
+                      'verticalAccuracy real)');
     });
 }
 

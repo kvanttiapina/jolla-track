@@ -4,6 +4,7 @@ import QtQuick 2.0
 
 import Sailfish.Silica 1.0
 import "./Storage.js" as S
+import FileIO 1.0
 
 Page {
 
@@ -22,6 +23,11 @@ Page {
         }
     }
 
+    FileIO {
+        id: gpxfile
+        onError: console.log(msg)
+    }
+
     SilicaFlickable {
         id: flickable
         anchors.fill: parent
@@ -37,6 +43,14 @@ Page {
             })
         }
 
+        function saveAll() {
+            var now = new Date()
+            var basename = 'all_tracks_' + now
+            var name = StandardPaths.documents + '/' + basename + '.gpx'
+            var contents = page.storage.get_all_as_gpx(basename)
+            gpxfile.write(name, contents)
+        }
+
         PullDownMenu {
             MenuItem {
                 text: qsTr("Delete all")
@@ -48,7 +62,7 @@ Page {
             }
             MenuItem {
                 text: qsTr("Save all")
-                // onClicked:
+                onClicked: flickable.saveAll()
             }
         }
 
@@ -74,6 +88,15 @@ Page {
                     })
                 }
 
+                function save() {
+                    var entry = trackmodel.get(index)
+                    var track_name = '' + entry.started + '-' + entry.records
+                    var name = StandardPaths.documents + '/' + track_name + '.gpx'
+                    console.log(name)
+                    var contents = page.storage.get_as_gpx(entry.id, track_name)
+                    gpxfile.write(name, contents)
+                }
+
                 Row {
                     width: parent.width
                     spacing: Theme.paddingLarge
@@ -95,7 +118,7 @@ Page {
                         ContextMenu {
                             MenuItem {
                                 text: qsTr("Save")
-                                // onClicked:
+                                onClicked: trackitem.save()
                             }
                             MenuItem {
                                 text: qsTr("Send over bluetooth")
