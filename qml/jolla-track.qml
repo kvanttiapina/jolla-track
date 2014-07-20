@@ -77,7 +77,7 @@ ApplicationWindow
 
 
         function is_valid() {
-            // return src.sourceError === PositionSource.NoError;
+            // return src.sourceError === PositionSource.NoError
             return true;
         }
 
