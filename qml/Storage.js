@@ -23,7 +23,7 @@ controlProto.createTrack = function() {
 }
 
 
-controlProto.initModel = function(model, tracking_on) {
+controlProto.initTrackModel = function(model, tracking_on) {
     this._db.transaction(function(tx) {
         var r = tx.executeSql('select * from tracks')
         var ids = []
@@ -169,7 +169,7 @@ controlProto._createTables = function() {
 }
 
 function createController() {
-    var storage = Object.create(controlProto)
+    var storage = G.create(controlProto)
     storage._db = L.LocalStorage.openDatabaseSync("JollaGPSTrackDB", "1.0", "Tracks", 1000000);
     return storage;
 }

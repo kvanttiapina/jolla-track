@@ -4,6 +4,7 @@
 
 .import "./Global.js" as G
 .import "./Storage.js" as S
+.import "./Formatter.js" as F
 .import QtPositioning 5.2 as P
 
 var errInd = '*';
@@ -37,7 +38,7 @@ controlProto.updateTrack = function(pos, valid) {
 
 controlProto.started = function() {
     if (!this.tracking) return errInd;
-    return this._started;
+    return this.formatter.date(this._started);
 }
 
 controlProto.records = function() {
@@ -47,34 +48,34 @@ controlProto.records = function() {
 
 controlProto.moving = function() {
     if (!this.tracking) return errInd;
-    return this._state_data.moving.duration;
+    return this.formatter.duration(this._state_data.moving.duration);
 }
 
 controlProto.stationary = function() {
     if (!this.tracking) return errInd;
-    return this._state_data.stationary.duration;
+    return this.formatter.duration(this._state_data.stationary.duration);
 }
 
 controlProto.nofix = function() {
     if (!this.tracking) return errInd;
-    return this._state_data.nofix.duration;
+    return this.formatter.duration(this._state_data.nofix.duration);
 }
 
 controlProto.distance = function() {
     if (!this.tracking) return errInd;
-    return this._distance;
+    return this.formatter.distance(this._distance);
 }
 
 controlProto.speed = function() {
     if (!this.tracking) return errInd;
     if (this._state !== 'moving') return errInd;
-    return this._speed;
+    return this.formatter.speed(this._speed);
 }
 
 controlProto.bearing = function() {
     if (!this.tracking) return errInd;
     if (this._state !== 'moving') return errInd;
-    return this._bearing;
+    return this.formatter.bearing(this._bearing);
 }
 
 // -------------------
@@ -194,10 +195,10 @@ movingProto.execute = function(pos, now) {
 
 function _createStates(parent) {
     var states = {
-        moving: Object.create(movingProto),
-        stationary: Object.create(stationaryProto),
-        nofix: Object.create(nofixProto),
-        start: Object.create(nofixProto),
+        moving: G.create(movingProto),
+        stationary: G.create(stationaryProto),
+        nofix: G.create(nofixProto),
+        start: G.create(nofixProto),
     }
 
     for (state in states) {
@@ -210,7 +211,7 @@ function _createStates(parent) {
 
 
 function createController() {
-    tracker = Object.create(controlProto)
+    tracker = G.create(controlProto)
     tracker._state = 'start';
     tracker.tracking = false;
     tracker._track_id = 0;
@@ -230,5 +231,7 @@ function createController() {
         coord: function() {return P.QtPositioning.coordinate(this.lat, this.lon)},
     };
     tracker._storage = S.createController();
+    tracker.formatter = F.createFormatter();
+
     return tracker;
 }

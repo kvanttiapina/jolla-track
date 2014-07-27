@@ -26,7 +26,10 @@ OTHER_FILES += qml/jolla-track.qml \
     jolla-track.desktop \
     jolla-track.png \
     qml/Global.js \
-    qml/TrackListPage.qml
+    qml/TrackListPage.qml \
+    qml/AboutPage.qml \
+    qml/SettingsPage.qml \
+    qml/Formatter.js
 
 HEADERS += \
     src/fileio.h

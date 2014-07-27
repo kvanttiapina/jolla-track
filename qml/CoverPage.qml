@@ -43,11 +43,12 @@ CoverBackground {
     }
 
     function slotReady(pos) {
-        lat.text = pos.coordinate.latitude
+        var fmt = app.tracker.formatter
+        lat.text = fmt.position(pos.coordinate.latitude, 'latitude')
         if (!pos.latitudeValid) {
             lat.text = lat.text + T.errInd
         }
-        lon.text = pos.coordinate.longitude
+        lon.text = fmt.position(pos.coordinate.longitude, 'longitude')
         if (!pos.longitudeValid) {
             lon.text = lon.text + T.errInd
         }
@@ -72,12 +73,12 @@ CoverBackground {
 
             Column {
                 spacing: Theme.paddingSmall
-                Label {text: qsTr("Lat:")}
-                Label {text: qsTr("Long:")}
-                Label {text: qsTr("Recs:")}
-                Label {text: qsTr("Dist:")}
-                Label {text: qsTr("Speed:")}
-                Label {text: qsTr("Bearing:")}
+                Label {text: qsTr("La:")}
+                Label {text: qsTr("Lo:")}
+                Label {text: qsTr("Rs:")}
+                Label {text: qsTr("D:")}
+                Label {text: qsTr("Sp:")}
+                Label {text: qsTr("Br:")}
             }
             Column {
                 spacing: Theme.paddingSmall

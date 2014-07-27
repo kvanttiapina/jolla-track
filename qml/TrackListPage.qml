@@ -17,7 +17,7 @@ Page {
 
     function refresh() {
         trackmodel.clear()
-        storage.initModel(trackmodel, app.tracker.tracking);
+        storage.initTrackModel(trackmodel, app.tracker.tracking);
     }
 
     onStatusChanged: {

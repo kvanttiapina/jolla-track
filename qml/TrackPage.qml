@@ -49,28 +49,28 @@ Page {
         bearing.text = app.tracker.bearing()
     }
 
-    function slotReady(pos) {
+    function slotReady(pos_data) {
         source.text = app.gps.is_valid() ? app.gps.status() : app.gps.error()
-        time.text = pos.timestamp
 
-        lat.text = pos.coordinate.latitude
-        if (!pos.latitudeValid) {
-            lat.text = lat.text + T.errInd
+        var fmt = app.tracker.formatter
+
+        time.text = app.tracker.formatter.date(pos_data.timestamp)
+
+        pos.text = fmt.position(pos_data.coordinate)
+        if (!(pos_data.latitudeValid && pos_data.longitudeValid)) {
+            pos.text = pos.text + T.errInd
         }
-        lon.text = pos.coordinate.longitude
-        if (!pos.longitudeValid) {
-            lon.text = lon.text + T.errInd
-        }
-        alt.text = pos.coordinate.altitude
+
+        alt.text = fmt.distance(pos_data.coordinate.altitude)
         if (!pos.altitudeValid) {
             alt.text = alt.text + T.errInd
         }
-        hacc.text = pos.horizontalAccuracy
-        if (!pos.horizontalAccuracyValid) {
+        hacc.text = fmt.distance(pos_data.horizontalAccuracy)
+        if (!pos_data.horizontalAccuracyValid) {
             hacc.text = hacc.text + T.errInd
         }
-        vacc.text = pos.verticalAccuracy
-        if (!pos.verticalAccuracyValid) {
+        vacc.text = fmt.distance(pos_data.verticalAccuracy)
+        if (!pos_data.verticalAccuracyValid) {
             vacc.text = vacc.text + T.errInd
         }
 
@@ -95,11 +95,11 @@ Page {
 
             MenuItem {
                 text: qsTr("About")
-                // onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
+                onClicked: pageStack.push(Qt.resolvedUrl("AboutPage.qml"))
             }
             MenuItem {
-                text: qsTr("Options")
-                // onClicked: pageStack.push(Qt.resolvedUrl("OptionsPage.qml"))
+                text: qsTr("Settings")
+                onClicked: pageStack.push(Qt.resolvedUrl("SettingsPage.qml"))
             }
             MenuItem {
                 text: qsTr("Tracks")
@@ -165,8 +165,7 @@ Page {
                     spacing: Theme.paddingLarge
                     Label {text: qsTr("Source:")}
                     Label {text: qsTr("Time:")}
-                    Label {text: qsTr("Latitude:")}
-                    Label {text: qsTr("Longitude:")}
+                    Label {text: qsTr("Position:")}
                     Label {text: qsTr("Altitude:")}
                     Label {text: qsTr("Hor. Acc:")}
                     Label {text: qsTr("Vert. Acc:")}
@@ -176,8 +175,7 @@ Page {
 
                     Label {text: app.gps.status(); id: source}
                     Label {text: T.errInd; id: time}
-                    Label {text: T.errInd; id: lat}
-                    Label {text: T.errInd; id: lon}
+                    Label {text: T.errInd; id: pos}
                     Label {text: T.errInd; id: alt}
                     Label {text: T.errInd; id: hacc}
                     Label {text: T.errInd; id: vacc}
