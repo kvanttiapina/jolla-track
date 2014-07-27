@@ -3,6 +3,7 @@
 */
 
 .import "./Global.js" as G
+.import "./Storage.js" as S
 
 var pads = ['', '0', '00', '000', '0000', '00000']
 
@@ -179,7 +180,7 @@ formatProto.initSettingsModel = function (model) {
         var alts = this.targets[label].alternatives
         var idx = 0;
         for (var alt in alts) {
-            choices.push({name: alt})
+            choices.push({key: label, value: alt})
             if (this[target] === this[alts[alt]]) {
                 selected = idx
             }
@@ -190,7 +191,34 @@ formatProto.initSettingsModel = function (model) {
     }
 }
 
+formatProto._updateFromStorage = function () {
+    var settings = this._storage.settings()
+    for (var key in settings) {
+        if (key in this.targets) {
+            var value = settings[key]
+            var alts = this.targets[key].alternatives
+            if (value in alts) {
+                var target = this.targets[key].target
+                this[target] = this[alts[value]]
+            }
+        }
+    }
+}
+
+formatProto.set = function (key, value) {
+    if (key in this.targets) {
+        var alts = this.targets[key].alternatives
+        if (value in alts) {
+            var target = this.targets[key].target
+            this[target] = this[alts[value]]
+            this._storage.set(key, value)
+        }
+    }
+}
+
 function createFormatter() {
     var fmt = G.create(formatProto);
+    fmt._storage = S.createController();
+    fmt._updateFromStorage();
     return fmt;
 }

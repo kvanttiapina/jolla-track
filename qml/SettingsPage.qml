@@ -30,24 +30,23 @@ Page {
         Column {
 
             id: settingsview
-            width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: header.bottom
+            width: parent.width
             Repeater {
-
+                id: keyrep
                 model: settingsmodel
-
-                ComboBox {
+                delegate: ComboBox {
                     id: combo
-                    width: parent.width
                     label: model.label
                     currentIndex: model.selected
                     menu: ContextMenu {
                         Repeater {
-                            width: parent.width
                             model: settingsmodel.get(index).choices
                             delegate: MenuItem {
-                                text: model.name
+                                text: model.value
+                                onClicked: app.tracker.formatter.set(model.key,
+                                                                     text)
                             }
                         }
                     }

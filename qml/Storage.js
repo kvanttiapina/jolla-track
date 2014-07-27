@@ -147,10 +147,37 @@ controlProto.get_all_as_gpx = function(name) {
     return contents
 }
 
+controlProto.set = function(key, value) {
+    this._db.transaction(function(tx) {
+        var r = tx.executeSql('select * from settings where key = ?', [key])
+        if (r.rows.length === 0) {
+            tx.executeSql('insert into settings (key, value) values (?, ?)', [key, value]);
+        } else {
+            tx.executeSql('update settings set value = ? where key = ?', [value, key]);
+        }
+    })
+}
+
+controlProto.settings = function() {
+    var settings = {}
+    this._db.transaction(function(tx) {
+        var r = tx.executeSql('select * from settings')
+        for (var idx = 0; idx < r.rows.length; idx++) {
+            var key = r.rows.item(idx).key
+            var value = r.rows.item(idx).value
+            settings[key] = value
+        }
+    });
+    return settings
+}
+
+
+
 controlProto._dropTables = function() {
     this._db.transaction(function(tx) {
         tx.executeSql('drop table if exists tracks');
         tx.executeSql('drop table if exists data');
+        tx.executeSql('drop table if exists settings');
     });
 }
 
@@ -165,6 +192,8 @@ controlProto._createTables = function() {
                       'altitude real,' +
                       'horizontalAccuracy real not null,' +
                       'verticalAccuracy real)');
+    tx.executeSql('create table if not exists settings(key text(32) primary key,' +
+                  'value text(64) not null)');
     });
 }
 
