@@ -84,7 +84,7 @@ formatProto.speed = formatProto.speed_SI
 
 formatProto.bearing_deg = function (b) {
     if (isNaN(b)) return 'NaN'
-    var br = (Math.floor(ms + 0.5) + 360) % 360
+    var br = (Math.floor(b + 0.5) + 360) % 360
     return padding(br, 3) + '\u00B0'
 }
 

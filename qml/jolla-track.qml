@@ -47,22 +47,22 @@ ApplicationWindow
         id: stopSrcTimer
         onTriggered: {
             if (src.active && !tracker.tracking && !coverActive && !pageActive) {
-                console.log('stopping src')
+//                console.log('stopping src')
                 src.stop()
             }
         }
     }
 
     function checkActiveStatus() {
-        console.log('coverActive = ' + coverActive)
-        console.log('pageActive = ' + pageActive)
+//        console.log('coverActive = ' + coverActive)
+//        console.log('pageActive = ' + pageActive)
         if (!src.active && (coverActive || pageActive)) {
-            console.log('starting src')
+//            console.log('starting src')
             src.start()
             return
         }
         if (src.active && !tracker.tracking && !coverActive && !pageActive) {
-            console.log('starting timer')
+//            console.log('starting timer')
             stopSrcTimer.start()
             return
         }
@@ -74,6 +74,7 @@ ApplicationWindow
         id: src
         updateInterval: 1000
         active: false
+        // nmeaSource: 'zoo.log'
 
 
         function is_valid() {

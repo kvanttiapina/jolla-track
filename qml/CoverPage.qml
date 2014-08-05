@@ -10,11 +10,11 @@ CoverBackground {
     id: cover
 
     Component.onCompleted: {
-        console.log("coverpage completion")
+//        console.log("coverpage completion")
         app.signalUpdateTracking.connect(slotUpdateTracking)
         coverAction.onTriggered.connect(app.slotToggleTracking)
         if (cover.status === Cover.Active) {
-            console.log("enabling cover updates")
+//            console.log("enabling cover updates")
             app.signalReady.connect(slotReady)
             app.coverActive = true
             app.gps.update()
@@ -23,11 +23,11 @@ CoverBackground {
 
     onStatusChanged: {
         if (cover.status === Cover.Inactive) {
-            console.log("disabling cover updates")
+//            console.log("disabling cover updates")
             app.signalReady.disconnect(slotReady)
             app.coverActive = false
         } else if (cover.status === Cover.Active) {
-            console.log("enabling cover updates")
+//            console.log("enabling cover updates")
             app.signalReady.connect(slotReady)
             app.coverActive = true
             app.gps.update()

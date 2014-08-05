@@ -10,6 +10,21 @@ var controlProto = {}
 
 controlProto.initDB = function() {
     this._createTables()
+    // delete null length tracks
+    this._db.transaction(function(tx) {
+        var r = tx.executeSql('select * from tracks')
+        var ids = []
+        var idx
+        for (idx = 0; idx < r.rows.length; idx++) ids.push(r.rows.item(idx).id)
+
+        for (idx = 0; idx < ids.length; idx++) {
+            var track_id = ids[idx]
+            var records = tx.executeSql('select count(id) as records from data where track_id = ?', [track_id])
+            if (records.rows.item(0).records === 0) {
+                tx.executeSql('delete from tracks where id = ?', [track_id])
+            }
+        }
+    });
 }
 
 
@@ -38,6 +53,9 @@ controlProto.initTrackModel = function(model, tracking_on) {
             var track_id = ids[idx]
             var stamp = tx.executeSql('select min(id) as nu, stamp from data where track_id = ?', [track_id])
             var records = tx.executeSql('select count(id) as records from data where track_id = ?', [track_id])
+            if (records.rows.item(0).records === 0) {
+                continue
+            }
             model.append({'id': track_id, 'started': stamp.rows.item(0).stamp, 'records': records.rows.item(0).records})
         }
     });

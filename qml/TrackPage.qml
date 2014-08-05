@@ -11,13 +11,13 @@ Page {
     id: page
 
     Component.onCompleted: {
-        console.log("page completion")
+//        console.log("page completion")
         app.signalUpdateTracking.connect(slotUpdateTracking)
         app.applicationActiveChanged.connect(statusChanged)
         control.onClicked.connect(app.slotToggleTracking)
 
         if (page.status === PageStatus.Active && app.applicationActive) {
-            console.log("enabling page updates")
+//            console.log("enabling page updates")
             app.signalReady.connect(slotReady)
             app.pageActive = true
             app.gps.update()
@@ -26,12 +26,12 @@ Page {
 
     onStatusChanged: {
         if (page.status === PageStatus.Active && app.applicationActive) {
-            console.log("enabling page updates")
+//            console.log("enabling page updates")
             app.signalReady.connect(slotReady)
             app.pageActive = true
             app.gps.update()
         } else if (page.status === PageStatus.Inactive || !app.applicationActive) {
-            console.log("disabling page updates")
+//            console.log("disabling page updates")
             app.signalReady.disconnect(slotReady)
             app.pageActive = false
         }

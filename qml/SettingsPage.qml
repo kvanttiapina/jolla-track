@@ -8,7 +8,7 @@ Page {
     ListModel {id: settingsmodel}
 
     Component.onCompleted: {
-        console.log("settings page completion")
+//        console.log("settings page completion")
         app.tracker.formatter.initSettingsModel(settingsmodel);
     }
 

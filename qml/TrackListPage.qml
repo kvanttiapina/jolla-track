@@ -22,7 +22,7 @@ Page {
 
     onStatusChanged: {
         if (page.status === PageStatus.Active) {
-            console.log("refreshing track list")
+//            console.log("refreshing track list")
             page.refresh()
         }
     }
@@ -65,7 +65,7 @@ Page {
             var basename = stuff[0]
             var contents = stuff[1]
             var name = StandardPaths.documents + '/' + basename + '.gpx'
-            console.log(name)
+//            console.log(name)
             gpxfile.write(name, contents)
         }
 
@@ -146,7 +146,7 @@ Page {
                     var track_name = stuff[0]
                     var contents = stuff[1]
                     var name = StandardPaths.documents + '/' + track_name + '.gpx'
-                    console.log(name)
+//                    console.log(name)
                     gpxfile.write(name, contents)
                 }
 
